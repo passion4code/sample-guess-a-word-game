@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Guess That Word</title>
+        <!-- Include Boostrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+
+         <!-- Include the game javascript file -->
+        <script src="assets/javascript/game.js"></script>
+    </head>
+    <body>
+        <!-- Top greeting and instructions-->
+        <div class="jumbotron">
+            <h1>Hangman</h1>
+            <p>
+                A random word will be chosen for you to guess. 
+                 <!-- 
+                    Note the "hide-when-started" class! 
+                    This will be used in the javascript file as an easy utility to hide all desired elements when the game is started
+                -->
+                Use your keyboard to enter your guesses. <span class="hide-when-started">Press any key to start!</span></p>
+           
+            
+        </div>
+        <!-- 
+            Now for the main layout. We'll want a split 2 column layout, with 1/3 on the left  and 2/3 right 
+            We will give it the extra class of `show-when-started` to be used by the javascript later
+            and the `d-none` class provided by bootstrap to hide the whole element when the page is initially loaded
+        -->
+        <div class="container show-when-started d-none">
+            <div class="row">
+                <!-- Left Side Column -->
+                <div class="col-lg-4">
+                        <!-- 
+                            In the left hand side, we'll show general game information
+                            such as wins, losses, guesses left and what has been guessed.
+
+                            Let's just put each piece of information in its own little `card`
+                            I'm also using an extra set of classes to add some shadowing effect around the boxes.
+                            Not the use of the classes: `shadow p3 mb-5 bg-white rounded` 
+                        -->
+                        <div class="card shadow p-3 mb-5 bg-white rounded">
+                            <div class="card-body">
+                                <h5>Wins</h5>
+                                <!-- 
+                                    Note my use of the <span> tag here. 
+                                    The <span> is the simplest HTML element for wrapping around a dynamic piece within a sentence.
+                                    The `class="font-weight-bold"` is a bootstrap utility class to make the text bold.     
+
+                                    (disclaimer: there are cleaner ways to output dynamic text within rich javascript applications but this exercise isn't practicing on that)
+                                 -->
+                                <p>You have won <span class="font-weight-bold bg-success text-light rounded p-1" id="total-number-wins">0</span> times</p>
+                            </div>
+                        </div>
+                        <!-- Losses -->
+                        <div class="card shadow p3 mb-5 bg-white rounded">
+                            <div class="card-body">
+                                <h5>Losses </h5>
+                                <p>You have lost <span class="font-weight-bold bg-danger text-light rounded p-1" id="total-number-losses">0</span> times</p>
+                            </div>
+                        </div>
+                        <!-- Guesses -->
+                        <div class="card shadow p3 mb-5 bg-white rounded">
+                            <div class="card-body">
+                                <h5>Guesses </h5>
+                                <p>You have guessed <span class="font-weight-bold bg-warning rounded p-1" id="total-number-guesses">0</span> times this game</p>
+                                <p>You have <span class="font-weight-bold" id="number-guesses-left"></span> guesses left.</p>
+                                <p>Here is what you have guessed:</p>
+                                <!-- Let's make an empty <div> container for our guessed letters. Javascript will fill this in as we progress -->
+                                <div id="guessed-letters"></div>
+                            </div>
+                        </div>
+                </div>
+                <!-- Right Side Column -->
+                <div class="col-lg-8">
+                    <!-- 
+                        In the right side, let's show the actual hangman letters 
+                        The #hangman-active-word element is what we will use to show the current state of the chosen word (with underscores or with letters revealed) 
+                    -->
+                        
+                        <h2 class="text-center text-light text-uppercase bg-primary" id="hangman-active-word"></h2>
+                        
+                </div>
+            </div>
+        </div>
+    </body>
+    
+</html>
