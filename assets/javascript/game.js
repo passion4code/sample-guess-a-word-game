@@ -19,6 +19,8 @@ var HangmanGame = {
     // We'll figure out how many times the user has guessed by the length of this array as we fill it up
     guessedLetters: [],
 
+    // Here, we'll create a variable for whether or not we are accepting guesses. This will be used when the game is resetting so we don't keep collecting guesses.
+    acceptingGuesses: true, 
     // Finally, let's have a variable for if the game has started yet or not.
     isStarted: false,
 
@@ -73,11 +75,17 @@ var HangmanGame = {
         this.displayCurrentWord();
         // Now we set isStarted to true because the game has begun!
         this.isStarted = true;
+        // Run the displayUpdatedGameData() function to make sure the display is up to date.
+        this.displayUpdatedGameData();
     },
 
     // When the game is running, we will handle the guessed letter
     handleGuess: function(letter) {
-        // First, let's look to make sure the passed variable is even valid!
+        // First, let's see if we are even accepting guesses.
+        if (this.acceptingGuesses === false) { // If we are not accepting guesses
+            return;// we will just return out of this function and let nothing else continue.
+        } 
+        // Now, let's look to make sure the passed variable is even valid!
         // Below is a way to check if the passed `letter` is not anything between a-z or A-Z     
         if (letter.length !== 1 || !letter.match(/[a-z]/i) ) {
             // If there's anything wrong, just return out of this function
@@ -96,6 +104,10 @@ var HangmanGame = {
     handleTurn: function() {
 
         var hasWon = false;// Real quick, let's create a variable that represents if this is a winning turn. Default it to false.
+        // Now, we'll just update the displayed content for after the letter was guessed.
+        this.displayUpdatedGameData();
+        
+        // Next, we'll check for if you won or lost. 
         // The way that I am checking the `win` condition is if there are no more underscores in the obfuscated word
         var currentObfuscatedWord = this.getObfuscatedWord();
         // If we have 0 underscores in the word, the `.indexOf("_")` method will return -1
@@ -105,27 +117,50 @@ var HangmanGame = {
 
         // So, if we have won, let's celebrate and reset!
         if (hasWon === true) {
-            alert("Congratulations, you have won"); 
-            this.totalWins++; // Update totalWins   
-            this.resetGame(); // And reset the game     
+            // Show the success message
+            document.getElementById('you-win-message').style.display='block';            
+            // Update totalWins variable
+            this.totalWins++; 
+            // Set the `acceptingGuesses` variable to false. We are not accepting any more guesses right now!
+            this.acceptingGuesses = false; 
+            // Update the displayed game information so we can see the wins reflected
+            this.displayUpdatedGameData(); 
+
+            var that = this; // Assign this to that so we can reference it in our timer function below. Scope!
+            // Here, we set a timeout so that a certain block of code will get executed after a defined period of time.
+            window.setTimeout(function() {                
+                document.getElementById('you-win-message').style.display='none'; // Hide the 'you win' message.
+                that.resetGame(); // Reset the game
+            }, 5000); // Here, the 5000 means 5000 milliseconds. The inner function will get called after 5 seconds. 
+            
         }
         // Now let's look to see if you have any guesses left. 
         // The way I'll do it here is by looking at the availableNumberOfGuesses and comparing it to the number of guessedLetters
         else if (this.availableNumberOfGuesses <= this.guessedLetters.length) {
             // No more guesses!
-            alert("Oh no, you lost! Resetting.")
-            this.totalLosses++; // Update totalLosses
-            this.resetGame(); // And reset the game
-        }
-        
-        // Whether we win or lose, or keep playing, update all the dynamic information on the page
-        this.displayUpdatedGameData();
+            document.getElementById('you-lose-message').style.display='block';            
+            // Update `totalLosses` variable
+            this.totalLosses++; 
+            // Set the `acceptingGuesses` variable to false. We are not accepting any more guesses right now!
+            this.acceptingGuesses = false; 
+            // Update the displayed game information so we can see the loses reflected
+            this.displayUpdatedGameData(); 
+
+            var that = this; // Assign this to that so we can reference it in our timer function below. Scope!
+            // Here, we set a timeout so that a certain block of code will get executed after a defined period of time.
+            window.setTimeout(function() {                
+                document.getElementById('you-lose-message').style.display='none'; // Hide the 'you lose' message.
+                that.resetGame(); // Reset the game
+            }, 5000); // Here, the 5000 means 5000 milliseconds. The inner function will get called after 5 seconds. 
+        }        
     },
     
     // This function is responsible for resetting the state of the game after a win or loss. 
     resetGame: function() {
         this.chooseRandomWord(); // Choose a new random word            
         this.guessedLetters = []; // Reset the guessed letters
+        this.acceptingGuesses = true; // When the game is reset, we are now accepting guesses again
+        this.displayUpdatedGameData(); // Once we have reset the game, now we will update the display
     },
     // Here we declare a function that will choose a random word from the available words, and set it to the currentWord
     chooseRandomWord: function() {
@@ -134,8 +169,6 @@ var HangmanGame = {
         // Set the word to the array index of the random number chosen
         this.currentWord = this.availableWords[randomNumber];        
     },
-
-
 
     // This function is responsible for displaying the current word, with or without underscores
     displayCurrentWord: function() {
@@ -191,18 +224,19 @@ var HangmanGame = {
         document.getElementById('total-number-wins').innerText = this.totalWins;
         // For the number of guesses left, we set it to the number of available guesses minus the number of guessed letters.
         document.getElementById('number-guesses-left').innerText = (this.availableNumberOfGuesses - this.guessedLetters.length);
-        // Display the guessed letters. I will use .join(" ") to join the array into a string, with each item separated by a space.
+        // Show how many guesses you have made
+        document.getElementById('total-number-guesses').innerText = this.guessedLetters.length; 
+        // Display the guessed letters. I will use .join(" ") to join the array into a string, with each item separated by a space.        
         document.getElementById('guessed-letters').innerText = this.guessedLetters.join(" ")
 
         // Now we call the displayCurrentWord function to get that displayed
         this.displayCurrentWord();
     },
 
-    // This `initialize` function will give us an entry point from outside of the object.
+    // This `initialize` function will act as our entry point from outside of the object.
     initialize: function() {
-        // First we will start by running the `listenToKeyboard()` function to start listening for when the user enters a key
-        this.listenToKeyboard();
-        
+        //  The only thing we need to start doing here is to run the `listenToKeyboard()` function to start listening for when the user enters a key
+        this.listenToKeyboard();        
     }
 }
 
